@@ -18,14 +18,40 @@ Each directory is responsible for benchmarking a specific aspect of Address Sani
 
 ### NGINX Benchmark
 
-The NGINX benchmark requires modification of the scripts. The `beat-it.sh` and `run-it.sh` scripts have hardcoded addresses which will need to be modified to connect via SSH. On the NGINX setup server, clone the NGINX repository in the home directory of the SSH user then copy the `nginx.conf` file. Create the `/dev/shm/nginx` directory then copy `page.html` (see `nginx.conf`). The client host(s) will need to have the `httphit` Golang files copied over.
+The NGINX benchmark requires modification of the scripts. The `beat-it.sh` and `run-it.sh` scripts have hardcoded addresses which will need to be modified to connect via SSH.
 
-Once the hosts have been setup, run:
+#### Setup
+
+On the NGINX host, do the following:
+```shell
+$ apt-get update
+$ apt-get install make autoconf git gcc clang build-essential libpcre3 libpcre3-dev zlib1g zlib1g-dev libssl-dev libgd-dev libxml2 libxml2-dev uuid-dev
+$ git clone https://github.com/nginx/nginx
+$ mkdir /dev/shm/nginx
+$ echo "Hello, World!" > /dev/shm/nginx/index.html
+```
+
+On the NGINX client(s), do the following:
+```shell
+$ apt-install golang
+$ mkdir httphit
+```
+
+Finally, copy the necessary files to the client and server:
+```shell
+$ scp httphit/{main.go,go.mod} user@example.client:httphit
+$ scp nginx.conf user@example.server:nginx
+```
+
+#### Execute
+
+To configure how many requests are sent and for how long, modify `REQS` and `DEADLINE` in `beat-it.sh`.
+
+Once the hosts have been setup, execute:
 ```shell
 $ ./run-tests.sh
 ```
-
-Which will run a battery of tests with the `REQS` and `DEADLINE` variables in `beat-it.sh` then download and process all data. The script will produce a multi-plot graph with Gnuplot (saved as `plot.svg`).
+The script will automatically connect via SSH to the server and clients. The script will build and launch NGINX on the server host, start benchmarking the server on the clients, then record and collect all information. The script will produce a multi-plot graph with Gnuplot (saved as `plot.svg`).
 
 #### What Happens
 ##### Server
