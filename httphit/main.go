@@ -3,11 +3,11 @@ package main
 import (
     "os"
     "strconv"
-	"fmt"
+    "fmt"
     "context"
-	"io"
-	"net/http"
-	"time"
+    "io"
+    "net/http"
+    "time"
 )
 
 type Response struct {
@@ -25,7 +25,7 @@ func worker(url string, flag chan time.Duration, responses chan Response) {
     client := &http.Client{ Transport: tr }
     defer client.CloseIdleConnections();
 
-	for {
+    for {
         reqSpawn := <-flag
         if reqSpawn == time.Duration(0) {
             return
@@ -44,19 +44,19 @@ func worker(url string, flag chan time.Duration, responses chan Response) {
             elapsed := time.Since(start)
             responses <- Response { spawned, elapsed }
         }(reqSpawn)
-	}
+    }
 }
 
 func stressServer(url string, numWorkers, reqsPerSec int, deadline time.Duration) {
-	responses := make(chan Response)
+    responses := make(chan Response)
     flag    := make(chan time.Duration)
 
     ctx, cancel := context.WithTimeout(context.Background(), deadline)
     defer cancel()
 
-	for i := 0; i < numWorkers; i++ {
-		go worker(url, flag, responses)
-	}
+    for i := 0; i < numWorkers; i++ {
+        go worker(url, flag, responses)
+    }
 
     go func(){
         epoch := time.Now()
@@ -74,13 +74,13 @@ func stressServer(url string, numWorkers, reqsPerSec int, deadline time.Duration
         }
     }()
 
-	for {
-		response := <-responses
+    for {
+        response := <-responses
         if response == (Response{}) {
             return
         }
         fmt.Println(response.Spawned.Milliseconds(), response.Latency.Microseconds())
-	}
+    }
 }
 
 func main() {
