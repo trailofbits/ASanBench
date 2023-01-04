@@ -15,8 +15,6 @@ echo Running benchmark battery
 ./beat-it.sh noasan clang
 ./beat-it.sh noasan gcc
 
-exit
-
 echo Processing atop measurements
 for f in *-atop; do
     atopsar -r $f -m | tail -n +7 | head -n60 | tr -s '[:space:]' | \
