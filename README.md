@@ -16,11 +16,21 @@ Each directory is responsible for benchmarking a specific aspect of Address Sani
 
 ### C++ Benchmark
 
+Compile C++ with your compiler of choice with:
+```shell
+CXX -O2 -Wall [-fsanitize=address] test.cc -o test
+```
+
+Then benchmark to produce a report describing the process.
+```shell
+$ perf stat -addd --repeat=3 -- ./test
+```
+
 ### NGINX Benchmark
 
 The NGINX benchmark requires modification of the scripts. The `beat-it.sh` and `run-it.sh` scripts have hardcoded addresses which will need to be modified to connect via SSH.
 
-#### Setup
+#### Setup
 
 On the NGINX host, do the following:
 ```shell
@@ -86,3 +96,11 @@ Which attempts to send `$REQS` HTTP GET requests to `$SERVER`, per second, for `
 Note: The `httphit` script does _not_ produce as many requests as specified. You will have to increase `$REQS` until `calc_throughput.py` shows the number of requests you want.
 
 ### GCC Benchmark
+
+Compiling GCC in the benchmark is straightforward:
+```shell
+$ git clone https://github.com/c-testsuite/c-testsuite
+$ git clone https://github.com/gcc-mirror/gcc --depth=1
+$ sudo ./bench.sh
+```
+Superuser privileges are required to use `perf stat` because some measurements are privileged.
